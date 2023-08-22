@@ -175,8 +175,10 @@ int main ( int argc, char *argv[] ) {
             // Handle disconnected client
             if (recv_len <= 0) {
                 if (strlen(client->send_buffer) != 0) {
-                    sprintf(buffer, "client %d: %s\n", client->id , client->send_buffer);
+		    client->send_buffer = str_join(client->send_buffer, "\n");
+                    sprintf(buffer, "client %d: ", client->id);
                     broadcast(fd, buffer);
+		    broadcast(client->send_buffer);
                 }
                 sprintf(buffer, "server: client %d just left\n", client->id);
                 broadcast(fd, buffer);
@@ -190,8 +192,9 @@ int main ( int argc, char *argv[] ) {
             client->recv_buffer = str_join(client->recv_buffer, buffer);
             char* message = NULL;
             while (extract_message(&(client->recv_buffer), &message) != 0) {
-                sprintf(buffer, "client %d: %s", client->id , message);
+                sprintf(buffer, "client %d: ", client->id);
                 broadcast(fd, buffer);
+		broadcast(fd, message);
                 free(message);
             }
         }
